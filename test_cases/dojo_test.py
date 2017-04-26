@@ -1,7 +1,8 @@
 import unittest
 from class_models.the_dojo import Dojo
-class TestCreateRoom(unittest.TestCase):
 
+
+class TestCreateRoom(unittest.TestCase):
     """Dojo allocates rooms to staff and fellow"""
 
     def test_create_room_successfully(self):
@@ -36,8 +37,9 @@ class TestCreateRoom(unittest.TestCase):
 
 
 
-    # def test_person_name_str():
-    #     pass
+        # def test_person_name_str():
+        #     pass
+
 
 if __name__ == '__main__':
     unittest.main()
