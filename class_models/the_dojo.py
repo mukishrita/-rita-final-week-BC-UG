@@ -1,6 +1,6 @@
-from room import Room
-from office import Office
-from living_space import LivingSpace 
+from class_models.room import Room
+from class_models.office import Office
+from class_models.living_space import LivingSpace
 
 class Dojo(object):
 
@@ -36,5 +36,3 @@ class Dojo(object):
             if room.room_name == room_name:
                 return True
         return False
-    # def all_rooms(self):
-    #     return self.list_rooms

@@ -1,4 +1,4 @@
-from room import Room
+from class_models.room import Room
 
 class LivingSpace(Room):
     """
