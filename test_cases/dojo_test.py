@@ -13,7 +13,11 @@ class TestCreateRoom(unittest.TestCase):
         new_room_count = len(dojo_instance.list_rooms)
         self.assertEqual(new_room_count - initial_room_count, 1)
 
-    #def test_room_already_exists(self):
+    def test_room_already_exists(self):
+        dojo_instance = Dojo()
+        blue_office = dojo_instance.create_room("Blue", "office")
+        blue_exists = dojo_instance.room_exists("Blue")
+        self.assertTrue(blue_exists)
                
 
     # def test_person_name_str(self):
