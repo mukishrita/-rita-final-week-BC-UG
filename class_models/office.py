@@ -7,6 +7,6 @@ class Office(Room):
     offices = []
 
     def __init__(self, room_name):
+        super().__init__(room_name)
         self.room_capacity = 6
-        self.room_name = room_name
         # return [self.room_name, self.room_capacity]
