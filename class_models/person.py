@@ -1,8 +1,8 @@
 class Person(object):
     """
-        Rooms in Dojo
+        Person in Dojo
     """
-    total_no_of_people=[]
+    #total_people=[]
 
-    def __init__(self):
-        self.room_capacity = 0
+    def __init__(self, person_name):
+       self.person_name = person_name
