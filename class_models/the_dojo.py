@@ -41,14 +41,14 @@ class Dojo(object):
                 return True
         return False
 
-    def add_person(self, first_name,sur_name, person_type, need_livingspace):
+    def add_person(self, first_name, sur_name, person_type, need_livingspace):
         if len(self.list_people) < self.max_no_people:
             if not self.person_exists(first_name, sur_name):
                 if person_type == "staff":
                     staff = Staff(first_name, sur_name)
                     self.list_people.append(staff)
                     message = "Staff " + first_name+" "+ sur_name+ " has been successfully added. /n"
-                    office_name = self.assign_office(staff)
+                    office_name = self.assign_office(staff, self.list_rooms)
                     message += first_name+ " has been allocated the office" + office_name
                     return message
 
@@ -56,40 +56,49 @@ class Dojo(object):
                     fellow = Fellow(first_name, sur_name)
                     self.list_people.append(fellow)
                     message = "Fellow "  + first_name+" "+ sur_name+ " has been successfully added. /n"
-                    office_name = self.assign_office(fellow)
+                    office_name = self.assign_office(fellow, self.list_rooms)
                     message += first_name + " has been allocated the office" + office_name
                     if need_livingspace:
-                        livingspace_name = self.assign_livingspace()
-                        message += first_name + " has been allocated the livingspace" + livingspace_name
+                        livingspace_name = self.assign_livingspace(fellow, self.list_rooms)
+                        if livingspace_name:
+                            message += first_name + " has been allocated the livingspace" + livingspace_name
                     return message
             else:
                 return " Person"  + first_name+" "+ sur_name+ " already exists"
         else:
             return "Create more rooms in Dojo"
 
-    def person_exists(self, person_name):
+    def person_exists(self, first_name, sur_name):
         for person in self.list_people:
-            if person.person_name == person_name:
+            if person.first_name == first_name and person.sur_name == sur_name:
                 return True
         return False
 
-    def assign_office(self, person):
-        room = random.choice(self.list_rooms)
-        # for room in self.list_rooms:
-        if isinstance(room, Office) and len(room.occupants) < room.capacity:
-            room.occupants.append(person)
-            return room.room_name
+    def assign_office(self, person, rooms):
+        if len(rooms) > 0:
+            room = random.choice(rooms)
+            # for room in self.list_rooms:
+            if isinstance(room, Office) and len(room.occupants) < room.capacity:
+                room.occupants.append(person)
+                return room.room_name
+            else:
+                rooms.remove(room)
+                return self.assign_office(person, rooms)
         else:
-            self.assign_office(person)
+            return False
 
-    def assign_livingspace(self, person):
-        room = random.choice(self.list_rooms)
-        # for room in self.list_rooms
-        if isinstance(room, LivingSpace)and len(room.occupants) < room.capacity:
-            room.occupants.append(person)
-            return room.room_name
+    def assign_livingspace(self, person, rooms):
+        if len(rooms) > 0:
+            room = random.choice(rooms)
+            # for room in self.list_rooms
+            if isinstance(room, LivingSpace)and len(room.occupants) < room.capacity:
+                room.occupants.append(person)
+                return room.room_name
+            else:
+                rooms.remove(room)
+                return self.assign_office(person, rooms)
         else:
-            self.assign_office(person)
+            return False
 
 
 
