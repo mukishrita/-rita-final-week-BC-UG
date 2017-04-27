@@ -6,6 +6,7 @@ class Fellow(Person):
     """
     list_fellows = []
 
-    def __init__(self, person_name):
-        super().__init__(person_name)
+    def __init__(self, first_name, sur_name):
+        super().__init__(first_name, sur_name)
         self.wants_livingspace = False
+        self.livingspace = None

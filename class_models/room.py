@@ -2,7 +2,7 @@ class Room(object):
     """
         Rooms in Dojo
     """
-    total_rooms=[]
 
-    def __init__(self):
-        self.room_capacity = 0
+    def __init__(self, room_name, room_type):
+       self.room_name = room_name
+       self.occupants = []

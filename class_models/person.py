@@ -2,7 +2,9 @@ class Person(object):
     """
         Person in Dojo
     """
-    #total_people=[]
 
-    def __init__(self, person_name):
-       self.person_name = person_name
+    def __init__(self, first_name, sur_name):
+       self.first_name = first_name
+       self.sur_name = sur_name
+       self.has_room = False
+       self.office = None
