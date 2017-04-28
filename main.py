@@ -24,7 +24,7 @@ from class_models.the_dojo import Dojo
 from docopt import docopt, DocoptExit
 import sys
 import cmd
-import os
+#import os
 
 def docopt_cmd(func):
     """
@@ -63,7 +63,14 @@ class MyInteractive (cmd.Cmd):
         room_names = arg["<room_name>"]
         room_type = arg["<room_type>"]
         for room_name in room_names:
-            print(self.dojo.create_room(room_name, room_type))
+            create_room = self.dojo.create_room(room_name, room_type)
+            if create_room[0]:
+                if create_room[1].room_type == 'office':
+                    print("An office called " + create_room[1].room_name + " has been successfully created!")
+                else:
+                    print("A livingspace called " + create_room[1].room_name + " has been successfully created!")
+            else:
+                print(create_room[1])
         # print(room_names)
 
     @docopt_cmd
@@ -75,15 +82,16 @@ class MyInteractive (cmd.Cmd):
         assign_livingspace = arg["<assign_living_space>"]
         if assign_livingspace == "Y":
             assign_livingspace = True
-        print(self.dojo.add_person(first_name, sur_name, person_type, assign_livingspace))
+        add_person = self.dojo.add_person(first_name, sur_name, person_type, assign_livingspace)
+        print(add_person[1])
         # print(arg)
 
     @docopt_cmd
     def do_print_room(self, arg):
         """Usage: print_room <room_name>"""
         room_name = arg["<room_name>"]
-        room = next((room for room in self.dojo.list_rooms if room.room_name == room_name), None)
-        for person in room.occupants:
+        occupants = self.dojo.print_room(room_name)
+        for person in occupants:
             print(person.first_name+" "+person.sur_name)
 
     @docopt_cmd
@@ -91,38 +99,14 @@ class MyInteractive (cmd.Cmd):
         """Usage: print_allocations [-o <filename>]"""
         is_file = arg["-o"]
         filename = arg["<filename>"]
-        rooms = self.dojo.list_rooms
-        message = ""
-        for room in rooms:
-            message += room.room_name+"\n"
-            message += "-----------------------------\n"
-            for person in room.occupants:
-                message += person.first_name+" "+person.sur_name
-                if len(room.occupants) > (room.occupants.index(person) + 1):
-                    message += ","
-                else:
-                    message += "\n\n"
-        if is_file:
-            text_file = open("files/"+filename, "w")
-            text_file.write(message)
-            text_file.close()
-        print(message)
+        print(self.dojo.print_allocations(is_file, filename))
 
     @docopt_cmd
     def do_print_unallocated(self, arg):
         """Usage: print_unallocated [-o <filename>]"""
         is_file = arg["-o"]
         filename = arg["<filename>"]
-        people = self.dojo.list_people
-        message = ""
-        for person in people:
-            if not person.has_room:
-                message += person.first_name+" "+person.sur_name+"\n"
-        if is_file:
-            text_file = open("files/"+filename, "w")
-            text_file.write(message)
-            text_file.close()
-        print(message)
+        print(self.dojo.print_unallocated(is_file, filename))
 
     @docopt_cmd
     def do_reallocate_person(self, arg):
@@ -130,32 +114,23 @@ class MyInteractive (cmd.Cmd):
         first_name = arg["<first_name>"]
         sur_name = arg["<sur_name>"]
         new_room = arg["<new_room_name>"]
-        message = self.dojo.reallocate_person(first_name, sur_name, new_room)
-        print(message)
+        reallocate_person = self.dojo.reallocate_person(first_name, sur_name, new_room)
+        print(reallocate_person[1])
 
     @docopt_cmd
     def do_load_people(self, arg):
-        """Usage: load_people [-o <filename>]"""
+        """Usage: load_people -o <filename>"""
         is_file = arg["-o"]
         filename = arg["<filename>"]
-        if is_file and filename is not False:
-            if os.path.isfile("files/"+filename):
-                people = [person.rstrip('\n') for person in open("files/"+filename)]
-                for person in people:
-                    person = person.split()
-                    if len(person) == 3:
-                        person.append("")
-                    if person[3] == "Y":
-                        person[3] = True
-                    else:
-                        person[3] = False
-                    print(self.dojo.add_person(person[0], person[1], person[2], person[3]))
-            else:
-                print("File does not exist")
+        if is_file:
+            load_people = self.dojo.load_people(is_file, filename)
+            print(load_people[1])
 
     @docopt_cmd
     def do_save_state(self, arg):
         """Usage: save_state [--db=<sqlite_database>]"""
+        filename = arg["--db"]
+        self.dojo.save_state("files/"+filename)
         print(arg)
 
     @docopt_cmd
