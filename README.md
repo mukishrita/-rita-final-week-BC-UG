@@ -16,8 +16,11 @@ This system will be used to automatically allocate spaces to people at random.
 The repo containes a command line application.
 
 Instructions:
-
-1 Set path to the directory containing the unzipped file
-2 enter "python main.py --interactive"
+1. Download python 3
+2. Install a virtual environment http://docs.python-guide.org/en/latest/dev/virtualenvs/
+3. setup a virtual environment in the folder containing your project 
+3. install docopt in the same path http://docopt.org/
+4. changed directory in command line or a respective terminal to the directory containing the unzipped file
+5. enter "python main.py --interactive"
 
 
