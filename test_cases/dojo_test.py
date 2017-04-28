@@ -1,45 +1,131 @@
 import unittest
 from class_models.the_dojo import Dojo
+from class_models.fellow import Fellow
+from class_models.staff import Staff
 
-
-class TestCreateRoom(unittest.TestCase):
+class TestDojo(unittest.TestCase):
     """Dojo allocates rooms to staff and fellow"""
 
+    #@unittest.skip("if you want to skip test")
     def test_create_room_successfully(self):
         dojo_instance = Dojo()
         initial_room_count = len(dojo_instance.list_rooms)
         blue_office = dojo_instance.create_room("Blue", "office")
-        self.assertTrue(blue_office)
+        self.assertTrue(blue_office[0])
         new_room_count = len(dojo_instance.list_rooms)
         self.assertEqual(new_room_count - initial_room_count, 1)
 
-    def test_room_already_exists(self):
+    def test_room_exists(self):
         dojo_instance = Dojo()
         blue_office = dojo_instance.create_room("Blue", "office")
         blue_exists = dojo_instance.room_exists("Blue")
+        red_exists = dojo_instance.room_exists("Red")
         self.assertTrue(blue_exists)
+        self.assertFalse(red_exists)
 
     def test_add_person_successfully(self):
         dojo_instance = Dojo()
+        dojo_instance.create_room("Blue", "office")
         initial_people_count = len(dojo_instance.list_people)
-        rita_fellow = dojo_instance.add_person("Rita", "fellow")
-        self.assertTrue(rita_fellow)
+        rita_fellow = dojo_instance.add_person("Rita","Mukimba", "fellow", True)
+        self.assertTrue(rita_fellow[0])
         new_people_count = len(dojo_instance.list_people)
         self.assertEqual(new_people_count - initial_people_count, 1)
 
-    def test_person_already_exists(self):
+    def test_add_person_failed(self):
         dojo_instance = Dojo()
-        rita = dojo_instance.add_person("Rita", "fellow")
-        rita_exists = dojo_instance.person_exists("Rita")
+        dojo_instance.create_room("Blue", "office")
+        dojo_instance.add_person("Rita", "Mukimba", "fellow", True)
+        add_person = dojo_instance.add_person("Rita", "Mukimba", "fellow", True)
+        self.assertFalse(add_person[0])
+        dojo_instance.max_no_people = 1
+        add_person = dojo_instance.add_person("Joseph", "Kasule", "staff", False)
+        self.assertFalse(add_person[0])
+
+    def test_person_unallocated(self):
+        dojo_instance = Dojo()
+        add_fellow = dojo_instance.add_person("Rita", "Mukimba", "fellow", True)
+        self.assertEqual(add_fellow[2].has_room, False)
+
+    def test_assign_office(self):
+        dojo_instance = Dojo()
+        dojo_instance.create_room("Blue", "office")
+        fellow = Fellow("Rita", "Mukimba")
+        office = dojo_instance.assign_office(fellow, dojo_instance.list_rooms, [])
+        self.assertEquals(office.room_name, "Blue")
+
+    def test_assign_livingspace(self):
+        dojo_instance = Dojo()
+        dojo_instance.create_room("Blue", "livingspace")
+        fellow = Fellow("Rita", "Mukimba")
+        livingspace = dojo_instance.assign_livingspace(fellow, dojo_instance.list_rooms, [])
+        self.assertEquals(livingspace.room_name, "Blue")
+
+    def test_person_exists(self):
+        dojo_instance = Dojo()
+        dojo_instance.create_room("Blue", "office")
+        rita = dojo_instance.add_person("Rita", "Mukimba", "staff", False)
+        rita_exists = dojo_instance.person_exists("Rita", "Mukimba")
         self.assertTrue(rita_exists)
+        Jane = dojo_instance.person_exists("Jane", "Doe")
+        self.assertFalse(Jane)
 
+    def test_print_allocations(self):
+        dojo_instance = Dojo()
+        dojo_instance.create_room("Blue", "office")
+        dojo_instance.add_person("Rita", "Mukimba", "staff", False)
+        message = "Blue\n"
+        message += "-----------------------------\n"
+        message += "Rita Mukimba\n\n"
+        self.assertEquals(dojo_instance.print_allocations(False, ""), message)
 
+    def test_print_room(self):
+        dojo_instance = Dojo()
+        dojo_instance.create_room("Blue", "office")
+        add_staff = dojo_instance.add_person("Rita", "Mukimba", "staff", False)
+        add_fellow = dojo_instance.add_person("John", "Musoke", "fellow", True)
+        occupants = dojo_instance.print_room("Blue")
+        self.assertEquals(occupants, [add_staff[2], add_fellow[2]])
 
+    def test_print_unallocated(self):
+        dojo_instance = Dojo()
+        add_staff = dojo_instance.add_person("Rita", "Mukimba", "staff", False)
+        add_fellow = dojo_instance.add_person("John", "Musoke", "fellow", True)
+        occupants = dojo_instance.print_unallocated(False, "")
+        self.assertEquals(occupants, "Rita Mukimba\nJohn Musoke\n")
 
+    def test_reallocate_person_success(self):
+        dojo_instance = Dojo()
+        dojo_instance.create_room("Blue", "office")
+        dojo_instance.add_person("Rita", "Mukimba", "staff", False)
+        dojo_instance.create_room("Red", "office")
+        is_realocated = dojo_instance.reallocate_person("Rita","Mukimba","Red")[0]
+        self.assertTrue(is_realocated)
 
-        # def test_person_name_str():
-        #     pass
+    def test_reallocate_person_failed(self):
+        dojo_instance = Dojo()
+        dojo_instance.create_room("Blue", "office")
+        dojo_instance.add_person("Rita", "Mukimba", "staff", False)
+        dojo_instance.add_person("John", "Musoke", "staff", False)
+        dojo_instance.add_person("Peter", "Kasule", "staff", False)
+        dojo_instance.add_person("Joseph", "Museveni", "staff", False)
+        dojo_instance.add_person("Peter", "Musoke", "staff", False)
+        dojo_instance.add_person("Officer", "Kasule", "staff", False)
+        dojo_instance.create_room("Red", "office")
+        dojo_instance.add_person("Rita", "Karungi", "staff", False)
+        realocated = dojo_instance.reallocate_person("Rita", "Karungi", "Blue")
+        self.assertFalse(realocated[0], realocated[1])
+        realocated = dojo_instance.reallocate_person("Rita", "Karungi", "Green")
+        self.assertFalse(realocated[0], realocated[1])
+        realocated = dojo_instance.reallocate_person("Joshua", "Opio", "Green")
+        self.assertFalse(realocated[0], realocated[1])
 
+    def test_load_people(self):
+        dojo_instance = Dojo()
+        initial_list_length = len(dojo_instance.list_people)
+        load_people = dojo_instance.load_people(True, "../files/addpeople.txt")
+        self.assertTrue(load_people[0],load_people[1])
+        self.assertGreater(len(dojo_instance.list_people), initial_list_length)
 
 if __name__ == '__main__':
     unittest.main()

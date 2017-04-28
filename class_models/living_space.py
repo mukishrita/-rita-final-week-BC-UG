@@ -6,7 +6,9 @@ class LivingSpace(Room):
     """
     livingspace_rooms = []
 
-    def __init__(self, room_name):
-        super().__init__(room_name)
-        self.room_capacity = 4
-        # return [self.room_name, self.room_capacity]
+    def __init__(self, room_name, room_type):
+        super().__init__(room_name, room_type)
+        self.capacity = 4
+        self.room_type = "livingspace"
+
+
